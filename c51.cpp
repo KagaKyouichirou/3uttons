@@ -211,7 +211,7 @@ State RR(State s)
 //green
 State GG(State s)
 {
-  if (Y == s.pre and s.yt > s.yh)
+	if (Y == s.pre and s.yt > s.yh)
 	{
 		if (s.gt + s.yt - s.yh <= 5)
 		{

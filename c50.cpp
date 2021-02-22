@@ -87,13 +87,6 @@ State FinalState()
 	return s;
 }
 
-bool GoalState(const State& s)
-{
-	return (0 == s.a[0][0] and 1 == s.a[0][1] and 2 == s.a[0][2]
-    and 3 == s.a[1][0] and 4 == s.a[1][1] and 5 == s.a[1][2]);
-		//and 6 == s.a[2][0] and 7 == s.a[2][1] and 8 == s.a[2][2]);
-}
-
 void PrintState(State s)
 {
 	for (int i = 0; i < 3; i++)
@@ -208,7 +201,7 @@ State RR(State s)
 //green
 State GG(State s)
 {
-  if (Y == s.pre and s.yt > s.yh)
+	if (Y == s.pre and s.yt > s.yh)
 	{
 		if (s.gt + s.yt - s.yh <= 5)
 		{
