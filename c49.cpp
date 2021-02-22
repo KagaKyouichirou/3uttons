@@ -232,21 +232,17 @@ int main()
 	{
 	  printf("%d\n", layer);
 	  layer++;
-	  for (int k = 0; k < q.size(); k++)
+	  for (int k = 0; k < q.size() and keep; k++)
 	  {
 	    State s = q.front();
   		q.pop();
-		  for (int i = 0; i < 3; i++)
+		  for (int i = 0; i < 3 and keep; i++)
 		  {
 			  tmp = func[i](s);
 			  if (0 == m.count(tmp))
 			  {
 				  m[tmp] = s;
-				  if (GoalState(tmp))
-				  {
-					  keep = false;
-					  break;
-				  }
+				  if (GoalState(tmp)) keep = false;
 				  else
 				  {
 					  q.push(tmp);
