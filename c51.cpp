@@ -12,7 +12,7 @@ enum colour
 
 struct State
 {
-	int a[3][5];
+	int a[3][6];
 	int yh, yt, rh, rt, gh, gt;
 	colour pre;
 
@@ -20,7 +20,7 @@ struct State
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			for (int j = 0; j < 5; j++)
+			for (int j = 0; j < 7; j++)
 			{
 				if (a[i][j] < y.a[i][j]) return true;
 				else if (a[i][j] > y.a[i][j]) return false;
@@ -35,17 +35,18 @@ State InitialState()
 	State s;
 	for (int i = 0; i < 3; i++)
 	{
-		s.a[i][3] = -1;
-		s.a[i][4] = -1;
+		s.a[i][3] = 9;
+		s.a[i][4] = 9;
+		s.a[i][5] = 9;
 	}
-	s.a[0][0] = 8;
-	s.a[0][1] = 1;
+	s.a[0][0] = 1;
+	s.a[0][1] = 8;
 	s.a[0][2] = 5;
-	s.a[1][0] = 3;
-	s.a[1][1] = 0;
-	s.a[1][2] = 7;
-	s.a[2][0] = 6;
-	s.a[2][1] = 4;
+	s.a[1][0] = 7;
+	s.a[1][1] = 4;
+	s.a[1][2] = 0;
+	s.a[2][0] = 3;
+	s.a[2][1] = 6;
 	s.a[2][2] = 2;
 	s.yh = 3;
 	s.yt = 3;
@@ -62,9 +63,11 @@ State FinalState()
 	State s;
 	for (int i = 0; i < 3; i++)
 	{
-		s.a[i][3] = -1;
-		s.a[i][4] = -1;
+		s.a[i][3] = 9;
+		s.a[i][4] = 9;
+		s.a[i][5] = 9;
 	}
+
 	s.a[0][0] = 0;
 	s.a[0][1] = 1;
 	s.a[0][2] = 2;
@@ -84,21 +87,15 @@ State FinalState()
 	return s;
 }
 
-bool GoalState(const State& s)
-{
-	return (0 == s.a[0][0] and 1 == s.a[0][1] and 2 == s.a[0][2]
-    and 3 == s.a[1][0] and 4 == s.a[1][1] and 5 == s.a[1][2]);
-		//and 6 == s.a[2][0] and 7 == s.a[2][1] and 8 == s.a[2][2]);
-}
-
 void PrintState(State s)
 {
 	for (int i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < 5; j++)
+		for (int j = 0; j < 7; j++)
 		{
 			printf("%3d", s.a[i][j]);
 		}
+		printf("|");
 	}
 	printf("  %c\n", s.pre < 2 ? (s.pre < 1 ? 'N' : 'Y') : (s.pre < 3 ? 'R' : 'G'));
 }
@@ -108,12 +105,16 @@ State YY(State s)
 {
 	if (R == s.pre and s.rt > s.rh)
 	{
-		if (s.yt + s.rt - s.rh <= 5)
+		if (s.yt + s.rt - s.rh <= 4)
 		{
 			for (int i = s.rh; i < s.rt; i++)
 			{
+				if (3 == s.yt + i -s.rh and 0 != s.a[1][i] / 3) return s;
+			}
+			for (int i = s.rh; i < s.rt; i++)
+			{
 				s.a[0][s.yt + i - s.rh] = s.a[1][i];
-				s.a[1][i] = -1;
+				s.a[1][i] = 9;
 			}
 			s.yt += s.rt - s.rh;
 			s.yh = s.yt;
@@ -125,12 +126,16 @@ State YY(State s)
 	}
 	else if (G == s.pre and s.gt > s.gh)
 	{
-		if (s.yt + s.gt - s.gh <= 5)
+		if (s.yt + s.gt - s.gh <= 4)
 		{
 			for (int i = s.gh; i < s.gt; i++)
 			{
+				if (3 == s.yt + i - s.gh and 0 != s.a[2][i] / 3) return s;
+			}
+			for (int i = s.gh; i < s.gt; i++)
+			{
 				s.a[0][s.yt + i - s.gh] = s.a[2][i];
-				s.a[2][i] = -1;
+				s.a[2][i] = 9;
 			}
 			s.yt += s.gt - s.gh;
 			s.yh = s.yt;
@@ -153,12 +158,17 @@ State RR(State s)
 {
 	if (Y == s.pre and s.yt > s.yh)
 	{
-		if (s.rt + s.yt - s.yh <= 5)
+		if (s.rt + s.yt - s.yh <= 6)
 		{
 			for (int i = s.yh; i < s.yt; i++)
 			{
+				if (3 == s.rt + i - s.yh and 1 != s.a[0][i] / 3) return s;
+				if (5 == s.rt + i - s.yh and 2 != s.a[0][i] / 3) return s;
+			}
+			for (int i = s.yh; i < s.yt; i++)
+			{
 				s.a[1][s.rt + i - s.yh] = s.a[0][i];
-				s.a[0][i] = -1;
+				s.a[0][i] = 9;
 			}
 			s.rt += s.yt - s.yh;
 			s.rh = s.rt;
@@ -170,12 +180,17 @@ State RR(State s)
 	}
 	else if (G == s.pre and s.gt > s.gh)
 	{
-		if (s.rt + s.gt - s.gh <= 5)
+		if (s.rt + s.gt - s.gh <= 6)
 		{
 			for (int i = s.gh; i < s.gt; i++)
 			{
+				if (3 == s.rt + i - s.gh and 1 != s.a[2][i] / 3) return s;
+				if (5 == s.rt + i - s.gh and 2 != s.a[2][i] / 3) return s;
+			}
+			for (int i = s.gh; i < s.gt; i++)
+			{
 				s.a[1][s.rt + i - s.gh] = s.a[2][i];
-				s.a[2][i] = -1;
+				s.a[2][i] = 9;
 			}
 			s.rt += s.gt - s.gh;
 			s.rh = s.rt;
@@ -202,8 +217,12 @@ State GG(State s)
 		{
 			for (int i = s.yh; i < s.yt; i++)
 			{
+				if (4 == s.gt + i - s.yh and 0 != s.a[0][i] / 3) return s;
+			}
+			for (int i = s.yh; i < s.yt; i++)
+			{
 				s.a[2][s.gt + i - s.yh] = s.a[0][i];
-				s.a[0][i] = -1;
+				s.a[0][i] = 9;
 			}
 			s.gt += s.yt - s.yh;
 			s.gh = s.gt;
@@ -219,8 +238,12 @@ State GG(State s)
 		{
 			for (int i = s.rh; i < s.rt; i++)
 			{
+				if (4 == s.gt + i - s.rh and 0 != s.a[1][i] / 3) return s;
+			}
+			for (int i = s.rh; i < s.rt; i++)
+			{
 				s.a[2][s.gt + i - s.rh] = s.a[1][i];
-				s.a[1][i] = -1;
+				s.a[1][i] = 9;
 			}
 			s.gt += s.rt - s.rh;
 			s.gh = s.gt;
@@ -258,8 +281,11 @@ int main()
 
 	bool keep = true;
 
+	int layer = 0;
 	while (not qx.empty() and not qy.empty() and keep)
 	{
+		printf("Layer:%5d\n",layer);
+		layer++;
 		int cx = qx.size();
 		for (int k = 0; k < cx and keep; k++)
 		{
@@ -283,8 +309,8 @@ int main()
 						qx.push(tmp);
 					}
 				}
-			}	
-		}		
+			}
+		}
 
 		int cy = qy.size();
 		for (int k = 0; k < cy and keep; k++)
