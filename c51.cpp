@@ -20,7 +20,7 @@ struct State
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			for (int j = 0; j < 7; j++)
+			for (int j = 0; j < 6; j++)
 			{
 				if (a[i][j] < y.a[i][j]) return true;
 				else if (a[i][j] > y.a[i][j]) return false;
