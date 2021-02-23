@@ -94,7 +94,7 @@ void PrintState(State s)
 {
 	for (int i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < 7; j++)
+		for (int j = 0; j < 6; j++)
 		{
 			printf("%3d", s.a[i][j]);
 		}
@@ -104,7 +104,7 @@ void PrintState(State s)
 }
 
 //yellow
-State YY(State s, const int src, const unsigned int num)
+State YY(State s, const int src, const int num)
 {
 	static const int dst = 0;
 	if (s.size[dst] + num > 4) return s;
@@ -127,7 +127,7 @@ State YY(State s, const int src, const unsigned int num)
 }
 
 //red
-State RR(State s, const int src, const unsigned int num)
+State RR(State s, const int src, const int num)
 {
 	static const int dst = 1;
 	if (s.size[dst] + num > 6) return s;
@@ -151,7 +151,7 @@ State RR(State s, const int src, const unsigned int num)
 }
 
 //green
-State GG(State s, const int src, const unsigned int num)
+State GG(State s, const int src, const int num)
 {
 	static const int dst = 2;
 	if (s.size[dst] + num > 5) return s;
@@ -182,7 +182,7 @@ bool CheckState(const State& s)
 
 int main()
 {
-	State (*func[3])(State, const int, const unsigned int) = {YY, RR, GG};
+	State (*func[3])(State, const int, const int) = {YY, RR, GG};
 
 	std::map<State, State> mx, my;
 	std::queue<State> qx, qy;
@@ -196,16 +196,7 @@ int main()
 	qy.push(y);
 	my[y] = y;
 
-	State u;
-	u = GG(y, 0, 2);
-	u = YY(u, 1, 1);
-	u = RR(u, 0, 2);
-	u = RR(u, 2, 1);
-	u = YY(u, 2, 1);
-	u = YY(u, 2, 1);
-	if (CheckState(u)) printf("??????\n");
-
-	State tmp, tx, ty;
+	State tx, ty;
 
 	int best = 99999;
 	int xacc = 0;
@@ -214,16 +205,16 @@ int main()
 	int layer = 0;
 	while (not qx.empty() and not qy.empty())
 	{
-		printf("Layer:%5d\n",layer);
+		printf("Layer:%5d   best:%d\n", layer, best);
 		layer++;
 
 		xacc = 99999;
 		const int cx = qx.size();
 		for (int k = 0; k < cx; k++)
 		{
-			State sx = qx.front();
+			const State sx = qx.front();
 			qx.pop();
-			if (sx.acc >= best) continue;
+			if (sx.acc + yacc >= best) continue;
 			for (int i = 0; i < 3; i++)
 			{
 				for (int j = 1; j < 3; j++)
@@ -231,10 +222,10 @@ int main()
 					int src = (i + j) % 3;
 					for (int k = 1; k <= sx.size[src]; k++)
 					{
-						tmp = func[i](sx, src, k);
-						if (CheckState(tmp)) printf("!XX%4d\n", tmp.acc);
-						if (0 == mx.count(tmp))
+						State tmp = func[i](sx, src, k);
+						if (0 == mx.count(tmp) or tmp.acc < mx.find(tmp)->first.acc)
 						{
+							mx.erase(tmp);
 							mx[tmp] = sx;
 							if (1 == my.count(tmp))
 							{
@@ -245,7 +236,7 @@ int main()
 									best = tx.acc + ty.acc;
 								}
 							}
-							else if (tmp.acc < best)
+							if (tmp.acc < best)
 							{
 								qx.push(tmp);
 								if (tmp.acc < xacc) xacc = tmp.acc;
@@ -260,9 +251,9 @@ int main()
 		int cy = qy.size();
 		for (int k = 0; k < cy; k++)
 		{
-			State sy = qy.front();
+			const State sy = qy.front();
 			qy.pop();
-			//if (sy.acc >= best) continue;
+			if (sy.acc + xacc >= best) continue;
 			for (int i = 0; i < 3; i++)
 			{
 				for (int j = 1; j < 3; j++)
@@ -270,9 +261,10 @@ int main()
 					int src = (i + j) % 3;
 					for (int k = 1; k <= sy.size[src]; k++)
 					{
-						tmp = func[i](sy, src, k);
-						if (0 == my.count(tmp))
+						State tmp = func[i](sy, src, k);
+						if (0 == my.count(tmp) or tmp.acc < my.find(tmp)->first.acc)
 						{
+							my.erase(tmp);
 							my[tmp] = sy;
 							if (1 == mx.count(tmp))
 							{
@@ -281,27 +273,9 @@ int main()
 									tx = mx.find(tmp)->first;
 									ty = tmp;
 									best = tx.acc + ty.acc;
-									if (CheckState(tmp))
-									{
-										printf("!YYY%4d\n", best);
-
-										while (x < tx or tx < x)
-										{
-											PrintState(tx);
-											tx = mx[tx];
-										}
-
-										printf("-------------\n");
-
-										while (y < ty or ty < y)
-										{
-											PrintState(ty);
-											ty = my[ty];
-										}
-									}
 								}
 							}
-							else// if (tmp.acc < best)
+							if (tmp.acc < best)
 							{
 								qy.push(tmp);
 								if (tmp.acc < yacc) yacc = tmp.acc;
